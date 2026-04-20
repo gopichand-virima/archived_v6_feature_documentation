@@ -7,7 +7,7 @@
  *
  * SINGLE SOURCE OF TRUTH: /content/<version>/index.md files
  *
- * Generated: 2026-04-16T11:42:56.304Z
+ * Generated: 2026-04-20T07:43:22.960Z
  * Source: /content/6_1/index.md
  */
 
