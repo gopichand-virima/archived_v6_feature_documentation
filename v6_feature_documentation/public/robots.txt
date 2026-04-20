@@ -1,0 +1,7 @@
+# Virima Documentation — robots.txt
+# https://virima-products.github.io/v6_feature_documentation
+
+User-agent: *
+Allow: /
+
+Sitemap: https://virima-products.github.io/v6_feature_documentation/sitemap.xml

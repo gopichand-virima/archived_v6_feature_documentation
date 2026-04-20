@@ -1,0 +1,410 @@
+name: V6 Feature Doc Site CI/CD
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'CLAUDE.md'
+      - '.claude/**'
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - 'CLAUDE.md'
+      - '.claude/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - production
+      branch:
+        description: 'Branch to deploy from'
+        required: true
+        default: 'main'
+        type: string
+      image_tag:
+        description: 'Docker image tag to deploy (leave empty for new build)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+  security-events: write
+  actions: read
+  pull-requests: write
+  issues: write
+
+env:
+  APP_NAME: fe-v6-feature-doc-site
+  ECR_REPOSITORY: virima/fe-v6-feature-doc-site
+  NODE_VERSION: '20'
+
+jobs:
+  # Job 1: Quality Checks (On PR)
+  quality-checks:
+    name: Quality Checks
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: TypeScript check
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Audit dependencies
+        run: pnpm audit --production
+        continue-on-error: true
+
+  # Job 2: Build & Test (On PR)
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build application
+        run: pnpm build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: v6-feature-doc-site-build
+          path: dist/
+          retention-days: 7
+
+  # Job 3: Build & Push to ECR (On merge to main or manual dispatch)
+  build-push-ecr:
+    name: Build & Push to ECR
+    runs-on: ubuntu-latest
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
+    environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'dev' }}
+
+    outputs:
+      environment: ${{ steps.env.outputs.environment }}
+      image-tag: ${{ steps.generate-tag.outputs.tag }}
+      full-image-name: ${{ steps.generate-tag.outputs.full-image-name }}
+      build-status: ${{ steps.build-status.outputs.status }}
+      build-error: ${{ steps.build-status.outputs.error }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.branch || github.sha }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build application
+        run: pnpm build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Create ECR repository if not exists
+        run: |
+          REPO_NAME="${{ env.ECR_REPOSITORY }}"
+          if ! aws ecr describe-repositories --repository-names "$REPO_NAME" --region ${{ secrets.AWS_REGION }} 2>/dev/null; then
+            echo "Creating ECR repository: $REPO_NAME"
+            aws ecr create-repository --repository-name "$REPO_NAME" --region ${{ secrets.AWS_REGION }}
+          else
+            echo "ECR repository already exists: $REPO_NAME"
+          fi
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set ECR registry
+        id: set-registry
+        run: |
+          REGISTRY="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com"
+          echo "registry=${REGISTRY}" >> $GITHUB_OUTPUT
+          echo "Using registry: ${REGISTRY}"
+
+      - name: Determine environment
+        id: env
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          else
+            echo "environment=dev" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Generate image tag
+        id: generate-tag
+        run: |
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          SHORT_SHA=${GITHUB_SHA:0:8}
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            BRANCH_NAME="${{ github.event.inputs.branch }}"
+          else
+            BRANCH_NAME="${{ github.ref_name }}"
+          fi
+
+          CLEAN_BRANCH=$(echo "$BRANCH_NAME" | sed 's/[\/]/-/g')
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && -n "${{ github.event.inputs.image_tag }}" ]]; then
+            TAG="${{ github.event.inputs.image_tag }}"
+          elif [[ "${{ steps.env.outputs.environment }}" == "production" ]]; then
+            TAG="prod-${TIMESTAMP}-${SHORT_SHA}"
+          else
+            TAG="dev-${CLEAN_BRANCH}-${TIMESTAMP}-${SHORT_SHA}"
+          fi
+
+          FULL_IMAGE_NAME="${{ steps.set-registry.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${TAG}"
+
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+          echo "full-image-name=${FULL_IMAGE_NAME}" >> $GITHUB_OUTPUT
+          echo "timestamp=${TIMESTAMP}" >> $GITHUB_OUTPUT
+          echo "short-sha=${SHORT_SHA}" >> $GITHUB_OUTPUT
+
+          echo "Generated image tag: ${TAG}"
+          echo "Full image name: ${FULL_IMAGE_NAME}"
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          platforms: linux/amd64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: |
+            ${{ steps.generate-tag.outputs.full-image-name }}
+            ${{ steps.set-registry.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ steps.env.outputs.environment }}-latest
+          labels: |
+            org.opencontainers.image.title=${{ env.APP_NAME }}
+            org.opencontainers.image.description=Virima V6 Feature Doc Site
+            org.opencontainers.image.version=${{ steps.generate-tag.outputs.tag }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.created=${{ steps.generate-tag.outputs.timestamp }}
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            virima.app.name=${{ env.APP_NAME }}
+            virima.app.environment=${{ steps.env.outputs.environment }}
+            virima.build.number=${{ github.run_number }}
+          build-args: |
+            ENVIRONMENT=${{ steps.env.outputs.environment }}
+            VERSION=${{ steps.generate-tag.outputs.tag }}
+            BUILD_DATE=${{ steps.generate-tag.outputs.timestamp }}
+            GIT_COMMIT=${{ github.sha }}
+
+      - name: Scan Docker image for vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ steps.generate-tag.outputs.full-image-name }}
+          format: 'sarif'
+          output: 'trivy-image-results.sarif'
+        continue-on-error: true
+
+      - name: Upload image scan results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        continue-on-error: true
+        with:
+          sarif_file: 'trivy-image-results.sarif'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set build status
+        id: build-status
+        if: always()
+        run: |
+          if [[ "${{ steps.build.outcome }}" == "success" ]]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "error=" >> $GITHUB_OUTPUT
+            echo "Docker image built and pushed to ECR successfully!"
+            echo "Image: ${{ steps.generate-tag.outputs.full-image-name }}"
+          else
+            echo "status=failed" >> $GITHUB_OUTPUT
+            ERROR_MSG="Docker build/push failed. Check logs for details."
+            echo "error=${ERROR_MSG}" >> $GITHUB_OUTPUT
+            echo "Docker build/push failed!"
+          fi
+
+  # Job 4: Git Operations (Update faas-apps repository)
+  git-operations:
+    name: Git Operations
+    runs-on: ubuntu-latest
+    needs: [build-push-ecr]
+    if: needs.build-push-ecr.result == 'success'
+
+    steps:
+      - name: Set up GitHub CLI
+        run: |
+          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+          sudo apt update
+          sudo apt install gh -y
+          echo "${{ secrets.V6_FEATUREDOCS_PAT }}" | gh auth login --with-token
+
+      - name: Clone faas-apps repository
+        run: |
+          echo "Cloning faas-apps repository..."
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git clone https://x-access-token:${{ secrets.V6_FEATUREDOCS_PAT }}@github.com/Virima-Infra/faas-apps.git faas-apps
+          echo "Successfully cloned faas-apps repository"
+
+      - name: Update faas-apps repository
+        run: |
+          echo "Updating faas-apps repository with new image tag..."
+          cd faas-apps
+          IMAGE_TAG="${{ needs.build-push-ecr.outputs.image-tag }}"
+          BRANCH_NAME="update-${{ env.APP_NAME }}-${IMAGE_TAG}"
+          echo "Creating branch: $BRANCH_NAME"
+          git checkout -b "$BRANCH_NAME"
+          VALUES_FILE="charts/services/${{ env.APP_NAME }}/values.yaml"
+          if [[ -f "$VALUES_FILE" ]]; then
+            echo "Updating values.yaml with new image tag"
+            sed -i "s|tag: \".*\"|tag: \"$IMAGE_TAG\"|" "$VALUES_FILE"
+            echo "Updated values.yaml with image tag: $IMAGE_TAG"
+          else
+            echo "Values file not found at $VALUES_FILE"
+            exit 1
+          fi
+          git add "$VALUES_FILE"
+          git commit -m "Update ${{ env.APP_NAME }} image tag to $IMAGE_TAG
+
+          - Updated values.yaml with new image tag: $IMAGE_TAG
+          - Image: ${{ needs.build-push-ecr.outputs.full-image-name }}
+          - Build: ${{ github.run_number }}
+          - Commit: ${{ github.sha }}"
+          echo "Successfully updated repository with new image tag"
+
+      - name: Push changes and create PR
+        run: |
+          echo "Pushing branch and creating pull request..."
+          cd faas-apps
+          IMAGE_TAG="${{ needs.build-push-ecr.outputs.image-tag }}"
+          BRANCH_NAME="update-${{ env.APP_NAME }}-${IMAGE_TAG}"
+          git push https://x-access-token:${{ secrets.V6_FEATUREDOCS_PAT }}@github.com/Virima-Infra/faas-apps.git "$BRANCH_NAME"
+          PR_URL=$(gh pr create \
+            --title "Update ${{ env.APP_NAME }} Image Tag to $IMAGE_TAG" \
+            --body "## ${{ env.APP_NAME }} Image Update
+
+          This PR updates the ${{ env.APP_NAME }} image tag to \`$IMAGE_TAG\`.
+
+          ### Image Details
+          - **Image Tag**: \`$IMAGE_TAG\`
+          - **Full Image**: \`${{ needs.build-push-ecr.outputs.full-image-name }}\`
+          - **Environment**: \`${{ needs.build-push-ecr.outputs.environment }}\`
+          - **Build Number**: \`${{ github.run_number }}\`
+          - **Source Commit**: \`${{ github.sha }}\`
+
+          ### Changes
+          - Updated \`charts/services/${{ env.APP_NAME }}/values.yaml\` with new image tag
+
+          ### Related
+          - **Source Repository**: ${{ github.repository }}
+          - **Source Workflow**: [Build #${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          - **Source Commit**: [${{ github.sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})
+
+          ---
+          *This PR was automatically created by the ${{ env.APP_NAME }} CI/CD pipeline.*" \
+            --base main \
+            --head "$BRANCH_NAME")
+          echo "Successfully created PR: $PR_URL"
+          echo "PR created in faas-apps repository"

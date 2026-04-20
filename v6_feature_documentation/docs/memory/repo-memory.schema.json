@@ -1,0 +1,312 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/virima-products/v6_feature_documentation/docs/memory/repo-memory.schema.json",
+  "title": "RepoMemory",
+  "description": "Schema for v6_feature_documentation AI memory index (docs/memory/repo-memory.json)",
+  "type": "object",
+  "required": [
+    "$schema",
+    "memory_version",
+    "generated_at",
+    "maintained_by",
+    "project_identity",
+    "project_scope",
+    "repo_contracts",
+    "folder_structure",
+    "generation_pipeline",
+    "tooling_and_build",
+    "validation_gates",
+    "anti_patterns_to_avoid"
+  ],
+  "additionalProperties": true,
+
+  "properties": {
+    "$schema": { "type": "string" },
+
+    "memory_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "SemVer: bump patch for content additions, minor for restructure, major for breaking changes to shape"
+    },
+
+    "generated_at": {
+      "type": "string",
+      "description": "ISO-8601 date when this file was last written/updated (e.g. 2026-04-01)"
+    },
+
+    "maintained_by": { "type": "string" },
+
+    "project_identity": {
+      "type": "object",
+      "required": ["name", "repo", "live_url", "type", "brand_name", "brand_name_rule"],
+      "properties": {
+        "name":            { "type": "string" },
+        "repo":            { "type": "string" },
+        "github_org":      { "type": "string" },
+        "live_url":        { "type": "string", "format": "uri" },
+        "repo_url":        { "type": "string", "format": "uri" },
+        "type":            { "type": "string" },
+        "brand_name":      { "type": "string", "enum": ["VIRIMA"] },
+        "brand_name_rule": { "type": "string" },
+        "business_goal":   { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+
+    "project_scope": {
+      "type": "object",
+      "required": ["what_it_publishes", "active_version", "content_format"],
+      "properties": {
+        "what_it_publishes":        { "type": "string" },
+        "active_version":           { "type": "string" },
+        "planned_versions":         { "type": "array", "items": { "type": "string" } },
+        "planned_versions_note":    { "type": "string" },
+        "target_audience":          { "type": "array", "items": { "type": "string" } },
+        "content_format":           { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+
+    "source_target_repo_relationships": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "repo_contracts": {
+      "type": "object",
+      "required": [
+        "package_manager",
+        "language_policy",
+        "build_output_dir",
+        "base_path",
+        "content_ownership"
+      ],
+      "properties": {
+        "package_manager":         { "type": "string" },
+        "package_manager_version": { "type": "string" },
+        "node_version_minimum":    { "type": "string" },
+        "language_policy":         { "type": "string" },
+        "js_exception":            { "type": "string" },
+        "build_output_dir":        { "type": "string", "enum": ["dist/"] },
+        "base_path":               { "type": "string", "enum": ["/FeatureDocsite/"] },
+        "content_ownership":       { "type": "string" },
+        "index_md_ownership":      { "type": "string" },
+        "strict_typescript":       { "type": "boolean" },
+        "no_any_without_comment":  { "type": "boolean" },
+        "shared_types_location":   { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+
+    "folder_structure": {
+      "type": "object",
+      "description": "Key directory purposes — keys are paths, values are descriptive strings.",
+      "additionalProperties": { "oneOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }] }
+    },
+
+    "folder_mirroring": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "generation_pipeline": {
+      "type": "object",
+      "required": ["trigger", "main_script"],
+      "properties": {
+        "trigger":              { "type": "string" },
+        "workflow_file":        { "type": "string" },
+        "main_script":          { "type": "string" },
+        "stages":               { "type": "object", "additionalProperties": { "type": "string" } },
+        "exit_codes":           { "type": "object", "additionalProperties": { "type": "string" } },
+        "skip_regeneration_rule": { "type": "string" },
+        "deletion_safety_gate": { "type": "string" },
+        "prebuild_hook":        { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+
+    "deliverable_decision_engine": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "filename_rules": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "display_title_rules": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "generation_manifests": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "publishing_contract": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "navigation_contract": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "toc_contract": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "runtime_content_loading": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "website_functional_specs": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "layout_contracts": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "responsive_breakpoints": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "search_capabilities": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "versioning_and_dropdown_behavior": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "homepage_cards": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "theme_and_branding": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "dark_mode_contrast": {
+      "type": "object",
+      "description": "Dark mode contrast implementation — centralized CSS approach, component-level dark: variants",
+      "additionalProperties": true
+    },
+
+    "content_rendering_rules": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "table_rendering_rules": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "image_asset_rules": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "tooling_and_build": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "validation_gates": {
+      "type": "object",
+      "description": "All gates must pass before merge. Keys are gate names, values are descriptive strings.",
+      "additionalProperties": { "type": "string" }
+    },
+
+    "workflow_contracts": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "ci_cd_contracts": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "secret_dependencies": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "branch_naming": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "enterprise_capabilities": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "repo_specific_vs_reusable_rules": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "future_reuse": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "sub_landing_page_behavior": {
+      "type": "object",
+      "description": "Module landing page and sub-landing page behavior specs",
+      "additionalProperties": true
+    },
+
+    "url_management": {
+      "type": "object",
+      "description": "URL structure, hash routing, breadcrumb URL integration",
+      "additionalProperties": true
+    },
+
+    "memory_sync": {
+      "type": "object",
+      "description": "Metadata about the memory sync system — scripts, artifacts, routing, drift detection",
+      "properties": {
+        "drift_detector":       { "type": "string" },
+        "update_helper":        { "type": "string" },
+        "routing_map":          { "type": "string" },
+        "sync_skill":           { "type": "string" },
+        "check_command":        { "type": "string" },
+        "update_command":       { "type": "string" },
+        "exit_codes":           { "type": "object", "additionalProperties": { "type": "string" } },
+        "update_triggers":      { "type": "array", "items": { "type": "string" } },
+        "do_not_update_for":    { "type": "array", "items": { "type": "string" } },
+        "routing_model":        { "type": "object", "additionalProperties": { "type": "string" } }
+      },
+      "additionalProperties": true
+    },
+
+    "anti_patterns_to_avoid": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Anti-patterns are plain strings — one pattern per string for readability.",
+      "items": { "type": "string" }
+    },
+
+    "maintenance_guidance": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

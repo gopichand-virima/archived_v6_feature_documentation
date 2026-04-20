@@ -1,0 +1,29 @@
+# Large archive (exceeds GitHub's 100 MB file size limit)
+v6_feature_documentation.zip
+
+# Dependencies
+**/node_modules/
+
+# Build output
+**/build/
+**/dist/
+
+# Caches & worktrees
+**/.cache/
+**/.worktrees/
+**/.playwright-mcp/
+
+# Local Claude settings
+**/.claude/settings.local.json
+**/.claude/launch.json
+
+# Environment variables
+**/.env
+**/.env.local
+**/.env.*.local
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

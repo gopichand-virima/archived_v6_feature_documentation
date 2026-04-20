@@ -1,0 +1,88 @@
+name: Deploy to GitHub Pages
+
+# Deploys the Virima V6 Feature Documentation site to GitHub Pages.
+# Triggers on every push to main (including AI-generated doc commits from
+# generate-v6feature-docs.yml) and can be re-run manually via workflow_dispatch.
+#
+# Deployed URL: https://virima-products.github.io/v6_feature_documentation/
+#
+# Prerequisites (one-time repo setup):
+#   1. Go to Settings → Pages → Source → select "GitHub Actions"
+#   2. No branch-based source needed; this workflow manages artifacts directly.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Only one deployment runs at a time; never cancel an in-flight deploy.
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ── Build ────────────────────────────────────────────────────────────────────
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read   # read source
+      pages: write     # configure-pages needs to call the Pages API
+      id-token: write  # OIDC token required by configure-pages and upload-pages-artifact
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+        # pnpm build runs sync-toc (prebuild hook) then vite build.
+        # Output is dist/ using relative base path (./) so assets resolve
+        # correctly regardless of whether Pages serves from root or a subpath.
+
+      - name: Create SPA 404 fallback
+        run: cp dist/index.html dist/404.html
+        # GitHub Pages returns 404.html on unknown paths. Copying index.html here
+        # lets the React SPA handle client-side routing on deep-linked URLs.
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/
+          # dist/ is the website root. Assets use relative paths (base: './').
+          # Canonical entry: https://virima-products.github.io/v6_feature_documentation/
+
+  # ── Deploy ───────────────────────────────────────────────────────────────────
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write       # deploy to GitHub Pages
+      id-token: write    # OIDC token for trusted Pages deployment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

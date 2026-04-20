@@ -1,0 +1,76 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# pnpm
+.pnpm-store/
+.pnpm-debug.log
+
+# Lock files from other package managers (use pnpm-lock.yaml only)
+package-lock.json
+scripts/package-lock.json
+yarn.lock
+
+# Testing
+coverage/
+
+# Production
+build/
+dist/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Claude Code local settings (session-specific permissions — do not commit)
+.claude/settings.local.json
+
+# Playwright MCP logs
+.playwright-mcp/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS
+Thumbs.db
+
+# Git worktrees (project-local isolated workspaces)
+.worktrees/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Auto-generated backups (keep local if desired, but don't commit)
+*.backup.ts
+*.backup.js
+*.backup.mjs
+
+# API Keys and Secrets (DO NOT COMMIT)
+*.key
+*.pem
+secrets/
+.secrets
+
+.claude/launch.json

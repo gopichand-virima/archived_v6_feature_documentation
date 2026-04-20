@@ -1,0 +1,19 @@
+node_modules
+.git
+.github
+.cache
+.playwright-mcp
+dist
+build
+*.log
+.env
+.env.*
+
+# Development and testing utilities — exclude from production build
+public/validate-fix.js
+
+# Local artifacts and session files
+Full_Audit_Report.txt
+docs/plans/
+*.tmp
+*.temp

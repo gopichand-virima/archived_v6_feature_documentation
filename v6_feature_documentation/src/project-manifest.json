@@ -1,0 +1,186 @@
+{
+  "name": "virima-documentation",
+  "version": "1.0.0",
+  "description": "Virima Documentation Website - Corporate professional documentation with version control, MDX support, and AI-powered search",
+  "type": "figma-make-project",
+  "framework": "react-typescript",
+  "styling": "tailwind-v4",
+  "entry": "/App.tsx",
+  "created": "2025-11-18",
+  "metadata": {
+    "brandColor": "#059669",
+    "theme": "emerald-green-gradient",
+    "versions": ["5.13", "6.1", "6.1.1", "NextGen"],
+    "modules": [
+      "My Dashboard",
+      "CMDB",
+      "Discovery & Scan",
+      "ITAM",
+      "ITSM",
+      "Reports",
+      "Self Service",
+      "Program & Project Management",
+      "Risk Register",
+      "Vulnerability Management"
+    ],
+    "deliverables": [
+      "Getting Started",
+      "Online Help",
+      "Release Notes",
+      "Manuals",
+      "API Integration",
+      "Compatibility Matrix"
+    ]
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "lucide-react": "latest",
+    "@radix-ui/react-accordion": "latest",
+    "@radix-ui/react-alert-dialog": "latest",
+    "@radix-ui/react-avatar": "latest",
+    "@radix-ui/react-dialog": "latest",
+    "@radix-ui/react-dropdown-menu": "latest",
+    "@radix-ui/react-label": "latest",
+    "@radix-ui/react-scroll-area": "latest",
+    "@radix-ui/react-select": "latest",
+    "@radix-ui/react-separator": "latest",
+    "@radix-ui/react-slot": "latest",
+    "@radix-ui/react-tabs": "latest",
+    "class-variance-authority": "latest",
+    "clsx": "latest",
+    "tailwind-merge": "latest",
+    "sonner": "^2.0.3"
+  },
+  "structure": {
+    "components": [
+      "/components/HomePage.tsx",
+      "/components/DocumentationLayout.tsx",
+      "/components/DocumentationContent.tsx",
+      "/components/MDXContent.tsx",
+      "/components/TableOfContents.tsx",
+      "/components/AISearchDialog.tsx",
+      "/components/LoginDialog.tsx",
+      "/components/Footer.tsx",
+      "/components/icons/AIIcon.tsx",
+      "/components/icons/Binoculars.tsx"
+    ],
+    "ui_components": [
+      "/components/ui/accordion.tsx",
+      "/components/ui/alert-dialog.tsx",
+      "/components/ui/alert.tsx",
+      "/components/ui/aspect-ratio.tsx",
+      "/components/ui/avatar.tsx",
+      "/components/ui/badge.tsx",
+      "/components/ui/breadcrumb.tsx",
+      "/components/ui/button.tsx",
+      "/components/ui/calendar.tsx",
+      "/components/ui/card.tsx",
+      "/components/ui/carousel.tsx",
+      "/components/ui/chart.tsx",
+      "/components/ui/checkbox.tsx",
+      "/components/ui/collapsible.tsx",
+      "/components/ui/command.tsx",
+      "/components/ui/context-menu.tsx",
+      "/components/ui/dialog.tsx",
+      "/components/ui/drawer.tsx",
+      "/components/ui/dropdown-menu.tsx",
+      "/components/ui/form.tsx",
+      "/components/ui/hover-card.tsx",
+      "/components/ui/input-otp.tsx",
+      "/components/ui/input.tsx",
+      "/components/ui/label.tsx",
+      "/components/ui/menubar.tsx",
+      "/components/ui/navigation-menu.tsx",
+      "/components/ui/pagination.tsx",
+      "/components/ui/popover.tsx",
+      "/components/ui/progress.tsx",
+      "/components/ui/radio-group.tsx",
+      "/components/ui/resizable.tsx",
+      "/components/ui/scroll-area.tsx",
+      "/components/ui/select.tsx",
+      "/components/ui/separator.tsx",
+      "/components/ui/sheet.tsx",
+      "/components/ui/sidebar.tsx",
+      "/components/ui/skeleton.tsx",
+      "/components/ui/slider.tsx",
+      "/components/ui/sonner.tsx",
+      "/components/ui/switch.tsx",
+      "/components/ui/table.tsx",
+      "/components/ui/tabs.tsx",
+      "/components/ui/textarea.tsx",
+      "/components/ui/toggle-group.tsx",
+      "/components/ui/toggle.tsx",
+      "/components/ui/tooltip.tsx",
+      "/components/ui/use-mobile.ts",
+      "/components/ui/utils.ts"
+    ],
+    "content_files": "See content directory mapping below",
+    "styles": [
+      "/styles/globals.css"
+    ],
+    "utils": [
+      "/utils/mdxPathResolver.ts",
+      "/content/contentLoader.ts"
+    ],
+    "documentation": [
+      "/COMPREHENSIVE-BUILD-PROMPT.md",
+      "/Attributions.md",
+      "/docs/CURRENT-STATE.md",
+      "/docs/QUICK-START.md",
+      "/docs/architecture-diagram.md",
+      "/docs/implementation-summary.md",
+      "/docs/my-dashboard-6.1-mapping.md",
+      "/docs/testing-checklist.md",
+      "/guidelines/Guidelines.md"
+    ]
+  },
+  "content_structure": {
+    "versions": {
+      "5_13": {
+        "modules": ["my-dashboard", "cmdb", "discovery-scan", "itam", "itsm", "program-project-management", "reports", "risk-register", "self-service", "vulnerability-management"]
+      },
+      "6_1": {
+        "modules": ["my-dashboard", "cmdb", "discovery-scan", "itam", "itsm", "program-project-management", "reports", "risk-register", "self-service", "vulnerability-management"],
+        "my_dashboard_files": [
+          "dashboards-6_1.mdx",
+          "dashboards-contents-6_1.mdx",
+          "dashboards-customization-6_1.mdx",
+          "dashboards-report-actions-6_1.mdx",
+          "my-dashboard-6_1.mdx",
+          "my-dashboard-contents-6_1.mdx",
+          "my-dashboard-overview-6_1.mdx",
+          "system-icons-6_1.mdx"
+        ]
+      },
+      "6_1_1": {
+        "modules": ["my-dashboard", "cmdb", "discovery-scan", "itam", "itsm", "program-project-management", "reports", "risk-register", "self-service", "vulnerability-management"]
+      },
+      "NG": {
+        "modules": ["my-dashboard", "cmdb", "discovery-scan", "itam", "itsm", "program-project-management", "reports", "risk-register", "self-service", "vulnerability-management"]
+      }
+    },
+    "module_deliverables": {
+      "all_modules": ["api-integration", "compatibility-matrix", "getting-started", "manuals", "online-help", "release-notes"],
+      "my_dashboard_getting_started_count": 25
+    }
+  },
+  "features": {
+    "three_pane_layout": true,
+    "ai_search": true,
+    "login_dialog": true,
+    "version_control": true,
+    "mdx_support": true,
+    "breadcrumb_navigation": true,
+    "table_of_contents": true,
+    "responsive_design": true,
+    "premium_landing_page": true
+  },
+  "import_instructions": {
+    "step_1": "Import this manifest file to reconstruct the project structure",
+    "step_2": "All file contents are preserved in their original locations",
+    "step_3": "Dependencies will be automatically installed based on the dependencies object",
+    "step_4": "The entry point is /App.tsx",
+    "note": "This format is designed to be future-compatible with Figma Make import functionality"
+  }
+}

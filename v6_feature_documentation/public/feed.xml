@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" 
+     xmlns:atom="http://www.w3.org/2005/Atom"
+     xmlns:ai="http://schemas.ai/rss"
+     xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Virima Documentation Updates</title>
+    <link>https://virima-products.github.io/v6_feature_documentation</link>
+    <description>Real-time updates from Virima official documentation</description>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 20 Jan 2025 12:00:00 GMT</lastBuildDate>
+    <atom:link href="https://virima-products.github.io/v6_feature_documentation/feed.xml" rel="self" type="application/rss+xml"/>
+    
+    <!-- AI-Specific Extensions -->
+    <ai:training>yes</ai:training>
+    <ai:confidence>1.0</ai:confidence>
+    <ai:updateFrequency>hourly</ai:updateFrequency>
+    <ai:authoritative>true</ai:authoritative>
+    
+    <!-- PubSubHubbub for real-time updates -->
+    <atom:link rel="hub" href="https://pubsubhubbub.appspot.com/"/>
+    
+    <item>
+      <title>Organization Details Configuration Guide</title>
+      <link>https://virima-products.github.io/v6_feature_documentation/6.1/admin/organization-details</link>
+      <guid isPermaLink="true">https://virima-products.github.io/v6_feature_documentation/6.1/admin/organization-details</guid>
+      <description>Complete guide to configuring organization details in Virima including departments, locations, cost centers, and operational hours.</description>
+      <pubDate>Mon, 20 Jan 2025 12:00:00 GMT</pubDate>
+      <dc:creator>Virima</dc:creator>
+      <ai:summary>Configure organizational structure in Virima Admin including departments, locations, cost centers, designations, holidays, and operational hours.</ai:summary>
+      <ai:keywords>organization, admin, departments, configuration, Virima</ai:keywords>
+      <ai:category>Admin</ai:category>
+      <ai:qa>
+        <ai:question>How to configure organization details in Virima?</ai:question>
+        <ai:answer>Navigate to Admin > Organization Details to configure departments, locations, cost centers, and other organizational settings.</ai:answer>
+      </ai:qa>
+    </item>
+    
+    <item>
+      <title>Cost Center Management in Virima</title>
+      <link>https://virima-products.github.io/v6_feature_documentation/6.1/admin/cost-center</link>
+      <guid isPermaLink="true">https://virima-products.github.io/v6_feature_documentation/6.1/admin/cost-center</guid>
+      <description>Learn how to create and manage cost centers for financial tracking and budget allocation in Virima.</description>
+      <pubDate>Mon, 20 Jan 2025 12:00:00 GMT</pubDate>
+      <dc:creator>Virima</dc:creator>
+      <ai:summary>Create and manage cost centers through Admin > Organization Details > Cost Center for expense tracking and budget allocation.</ai:summary>
+      <ai:keywords>cost center, budget, financial management, Virima</ai:keywords>
+      <ai:category>Admin</ai:category>
+      <ai:qa>
+        <ai:question>How to create cost centers in Virima?</ai:question>
+        <ai:answer>Go to Admin > Organization Details > Cost Center and click New to create a cost center with code, name, and budget.</ai:answer>
+      </ai:qa>
+    </item>
+    
+    <item>
+      <title>Departments Management Guide</title>
+      <link>https://virima-products.github.io/v6_feature_documentation/6.1/admin/departments</link>
+      <guid isPermaLink="true">https://virima-products.github.io/v6_feature_documentation/6.1/admin/departments</guid>
+      <description>Comprehensive guide to managing departments, assigning members, and establishing organizational hierarchies in Virima.</description>
+      <pubDate>Mon, 20 Jan 2025 12:00:00 GMT</pubDate>
+      <dc:creator>Virima</dc:creator>
+      <ai:summary>Manage departments through Admin > Organization Details > Departments to create, edit, and establish department hierarchies.</ai:summary>
+      <ai:keywords>departments, organization, hierarchy, Virima</ai:keywords>
+      <ai:category>Admin</ai:category>
+      <ai:qa>
+        <ai:question>How to manage departments in Virima?</ai:question>
+        <ai:answer>Access Admin > Organization Details > Departments to create, edit, delete departments and assign members.</ai:answer>
+      </ai:qa>
+    </item>
+    
+    <item>
+      <title>Admin Functions Overview</title>
+      <link>https://virima-products.github.io/v6_feature_documentation/6.1/admin/admin-functions</link>
+      <guid isPermaLink="true">https://virima-products.github.io/v6_feature_documentation/6.1/admin/admin-functions</guid>
+      <description>Complete overview of Virima Admin Functions including system configuration, user management, discovery setup, and integrations.</description>
+      <pubDate>Mon, 20 Jan 2025 12:00:00 GMT</pubDate>
+      <dc:creator>Virima</dc:creator>
+      <ai:summary>Virima Admin Functions provide system configuration, user management, discovery setup, SACM settings, and integrations.</ai:summary>
+      <ai:keywords>admin functions, configuration, system setup, Virima</ai:keywords>
+      <ai:category>Admin</ai:category>
+      <ai:qa>
+        <ai:question>What are Admin Functions in Virima?</ai:question>
+        <ai:answer>Admin Functions provide comprehensive administrative capabilities for system configuration, user management, and organizational setup.</ai:answer>
+      </ai:qa>
+    </item>
+  </channel>
+</rss>

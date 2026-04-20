@@ -1,0 +1,15 @@
+{
+  "name": "feature-doc-scripts",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --import tsx/esm --test __tests__/**/*.test.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.0"
+  }
+}

@@ -1,0 +1,30 @@
+# CODEOWNERS — required reviewers for sensitive paths
+#
+# When branch protection is enabled on main, GitHub requires approval
+# from a listed owner before a PR modifying these paths can be merged.
+#
+# Syntax: <glob pattern>  <@owner or @org/team>
+#
+# NOTE: Adjust @virima-products/docs-team and @virima-products/devops
+# to the actual GitHub team slugs in your organization.
+
+# Default: all files require review
+*  @virima-products/docs-team
+
+# Infrastructure / deployment — changes here affect the live site
+Dockerfile                            @virima-products/devops
+nginx.conf                            @virima-products/devops
+docker-compose.yml                    @virima-products/devops
+.github/workflows/                    @virima-products/devops
+
+# AI governance files — changes affect all future Claude agent behavior
+CLAUDE.md                             @virima-products/docs-team
+docs/memory/                          @virima-products/docs-team
+scripts/memory/                       @virima-products/docs-team
+
+# Security scripts — changes affect the secret scanning and validation gates
+scripts/checks/verify-security.ts    @virima-products/devops
+scripts/checks/verify-paths.ts       @virima-products/docs-team
+
+# Generation validation — changes affect the GREEN/AMBER/RED gate
+scripts/validate-generation.ts       @virima-products/docs-team

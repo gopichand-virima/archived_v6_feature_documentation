@@ -1,0 +1,621 @@
+{
+  "$schema": "./repo-memory.schema.json",
+  "memory_version": "1.2.0",
+  "generated_at": "2026-04-16",
+  "maintained_by": "Claude agents — update after every session that changes architecture, contracts, or functional specs",
+
+  "project_identity": {
+    "name": "Virima V6 Feature Documentation",
+    "repo": "v6_feature_documentation",
+    "github_org": "virima-products",
+    "live_url": "https://virima-products.github.io/v6_feature_documentation/",
+    "repo_url": "https://github.com/virima-products/v6_feature_documentation",
+    "type": "React + Vite SPA — manually curated documentation website with graph-driven navigation",
+    "brand_name": "VIRIMA",
+    "brand_name_rule": "Always uppercase: VIRIMA — never Virima, virima, or ViRiMa",
+    "business_goal": "Serve versioned, enterprise-grade product documentation to Virima customers and IT administrators"
+  },
+
+  "project_scope": {
+    "what_it_publishes": "GFM Markdown documentation (.md) organized by a master TOC and served as a React SPA with graph-based navigation",
+    "active_version": "6.1",
+    "planned_versions": ["6.1.1", "5.13", "NextGen"],
+    "planned_versions_note": "These are commented out in code. Do not activate without explicit work to enable them.",
+    "target_audience": ["IT administrators", "End users of Virima V6 platform"],
+    "content_format": "GFM Markdown (.md) — never .mdx"
+  },
+
+  "content_architecture": {
+    "master_toc": "src/pages/content/6_1/index.md — the single source of truth for all navigation hierarchy",
+    "master_toc_format": "## Module → ### Section → - Page Label → /content/6_1/path/to/file.md",
+    "content_files": "src/pages/content/6_1/**/*.md — manually maintained GFM markdown docs",
+    "content_ownership": "Content files are manually maintained. Edit them directly. Ensure each file is referenced in the master TOC.",
+    "adding_content": "1. Create .md file at correct path. 2. Add entry to master TOC (index.md). 3. Run pnpm sync-toc && pnpm build-doc-graph.",
+    "removing_content": "1. Delete .md file. 2. Remove entry from master TOC. 3. Run pnpm sync-toc && pnpm build-doc-graph.",
+    "toc_drives_everything": "Navigation sidebar, breadcrumbs, search index, and doc graph are ALL derived from the master TOC — never from individual file metadata"
+  },
+
+  "repo_contracts": {
+    "package_manager": "pnpm — NEVER use npm or yarn",
+    "package_manager_version": "9.15.0",
+    "node_version_minimum": "20.0.0",
+    "language_policy": "TypeScript only — all files under src/, scripts/, root utilities must be .ts or .tsx",
+    "js_exception": "One documented exception: public/validate-fix.js — see docs/decisions/2026-03-29-javascript-retained.md",
+    "build_output_dir": "dist/ — NEVER build/",
+    "base_path": "./",
+    "base_path_note": "Relative — GitHub Pages serves dist/ at domain root; relative paths work everywhere",
+    "strict_typescript": true,
+    "no_any_without_comment": true,
+    "shared_types_location": "src/types/"
+  },
+
+  "folder_structure": {
+    "src/pages/content/6_1/index.md": "MASTER TOC — single source of truth for navigation. Edit this to add/remove pages.",
+    "src/pages/content/6_1/": "Active version 6.1 documentation files — organized in module_6_1/ subdirectories",
+    "src/lib/content/": "Runtime content loading library — contentLoader, registry, manifests",
+    "src/lib/search/": "Search orchestration and config",
+    "src/lib/theme/": "Theme provider",
+    "src/lib/chat/": "Chat system library",
+    "src/data/navigationData.ts": "AUTO-GENERATED — nav structure from sync-toc. Do not hand-edit.",
+    "src/utils/indexContentMap.ts": "AUTO-GENERATED — TOC content strings from sync-toc. Do not hand-edit.",
+    "src/utils/docGraph.ts": "Runtime graph client — loads doc-graph.json once per session; L0/L1/L2 progressive disclosure API",
+    "src/components/": "React UI components — PascalCase.tsx naming",
+    "src/styles/globals.css": "Global CSS — Tailwind v4, theme tokens, layout foundation",
+    "src/assets/images/6_1/": "Version-scoped image assets organized by module subdirectory",
+    "src/types/": "Shared TypeScript type definitions",
+    "src/utils/": "Utility functions — camelCase.ts naming",
+    "scripts/": "Build, sync, validation scripts — kebab-case.ts or camelCase.ts",
+    "scripts/build-doc-graph.ts": "Builds public/doc-graph.json — parse master TOC + all .md files; compute nodes/edges",
+    "scripts/build-search-index.ts": "Builds public/search-index.json — 385 entries from master TOC; title+headings+excerpt",
+    "scripts/sync-toc-from-index.ts": "Reads master index.md → writes navigationData.ts + indexContentMap.ts",
+    "scripts/checks/": "Structural integrity checks — verify-security.ts, verify-setup.ts, verify-paths.ts",
+    "scripts/evals/": "Documentation quality eval suites",
+    "scripts/__tests__/": "Unit tests for scripts",
+    "public/doc-graph.json": "BUILD ARTIFACT — 385 pages, 1045 edges. Generated by pnpm build-doc-graph. Never hand-edit.",
+    "public/search-index.json": "BUILD ARTIFACT — 385 search entries. Generated by pnpm build-search-index. Never hand-edit.",
+    "docs/": "Human-readable documentation, decisions, evals, operations, plans, prompts",
+    "docs/memory/": "Canonical AI memory system — this directory",
+    "dist/": "Build output — deployed to GitHub Pages via deploy-pages.yml. Never commit hand-crafted files here.",
+    ".claude/": "Claude Code configuration — commands, settings, launch",
+    ".claude/settings.json": "Claude Code session hooks — pnpm-only guardrail; content-edit reminder; legacy-path check; Stop reminder",
+    ".github/CODEOWNERS": "Code ownership rules",
+    ".github/workflows/": "CI/CD pipelines",
+    "PROHIBITED_legacy_paths": [
+      "src/content/ — old path, never re-create",
+      "build/ — wrong output dir, always use dist/",
+      "src/lib/imports/ — deleted; static MDX import maps no longer exist"
+    ]
+  },
+
+  "doc_graph_architecture": {
+    "purpose": "Token-efficient, build-time structural index of all documentation pages",
+    "build_script": "scripts/build-doc-graph.ts",
+    "output": "public/doc-graph.json",
+    "output_size": "~469 KB",
+    "stats": { "modules": 13, "sections": 55, "pages": 385, "edges": 1045 },
+    "node_schema": {
+      "id": "kebab-case slug",
+      "filePath": "/content/6_1/... path",
+      "title": "H1 title from file",
+      "module": "parent module ID",
+      "section": "parent section ID",
+      "breadcrumbs": "derived from TOC hierarchy",
+      "headings": "H2/H3 headings array",
+      "imageRefs": "image paths used",
+      "contentHash": "SHA-256 of file content",
+      "wordCount": "word count",
+      "orderIndex": "TOC ordering position"
+    },
+    "edge_kinds": ["LINKS_TO", "CONTAINS", "PARENT_OF", "SIBLING", "NEXT", "PREV"],
+    "incremental_mode": "pnpm build-doc-graph -- --incremental compares contentHash, re-parses only changed files",
+    "runtime_client": "src/utils/docGraph.ts — loads once per session, session-cached",
+    "progressive_disclosure": {
+      "L0": "getGraphStats() — graph metadata only (~100 tokens)",
+      "L1": "getModuleNodes(), getSectionNodes() — section page lists (~200-500 tokens)",
+      "L2": "getNodeById(), getNextNode(), getPrevNode() — navigation without body content"
+    }
+  },
+
+  "search_index_architecture": {
+    "build_script": "scripts/build-search-index.ts",
+    "output": "public/search-index.json",
+    "output_size": "~254 KB",
+    "entries": 385,
+    "coverage": "All TOC-referenced pages (5 pre-known missing files excluded from coverage)",
+    "entry_schema": {
+      "id": "slugified page label",
+      "title": "H1 title",
+      "module": "module ID",
+      "moduleLabel": "module display name",
+      "section": "section ID",
+      "sectionLabel": "section display name",
+      "filePath": "/content/6_1/... path",
+      "headings": "H2/H3 headings (up to 10)",
+      "headingIds": "slugified heading IDs for anchor links",
+      "excerpt": "first 280 chars of plain text body",
+      "breadcrumb": "Module > Section > Page"
+    },
+    "lazy_loading": "Loaded on first search — not at app boot"
+  },
+
+  "build_pipeline": {
+    "command": "pnpm build",
+    "prebuild_sequence": "sync-toc → build-doc-graph → build-search-index → build-sitemap → vite build",
+    "sync_toc": "Reads master index.md → writes navigationData.ts + indexContentMap.ts",
+    "build_doc_graph": "Parses master TOC + all .md files → public/doc-graph.json (385 pages, 1045 edges)",
+    "build_search_index": "Parses master TOC → public/search-index.json (385 entries)",
+    "build_sitemap": "Generates public/sitemap.xml",
+    "vite_build": "Bundles React SPA + copies all .md content files to dist/content/",
+    "content_copy": "vite.config.ts copyContentPlugin: src/pages/content/ → dist/content/ (serves .md at runtime)",
+    "after_adding_content": "Run pnpm sync-toc && pnpm build-doc-graph && pnpm build-search-index to update all derived artifacts"
+  },
+
+  "publishing_contract": {
+    "navigation_source_of_truth": "src/pages/content/6_1/index.md (master TOC)",
+    "sync_toc_reads_from": "src/pages/content/6_1/index.md",
+    "sync_toc_writes_to": ["src/data/navigationData.ts", "src/utils/indexContentMap.ts"],
+    "sync_toc_command": "pnpm sync-toc",
+    "doc_graph_reads_from": "src/pages/content/6_1/index.md + all .md files",
+    "doc_graph_writes_to": "public/doc-graph.json",
+    "search_index_reads_from": "src/pages/content/6_1/index.md + all .md files",
+    "search_index_writes_to": "public/search-index.json",
+    "active_versions_in_sync_toc": ["6.1"],
+    "inactive_versions_note": "6.1.1, 5.13, NextGen are defined in VERSION_MAP but excluded from exported versions array",
+    "master_toc_format": {
+      "module": "## Module Title",
+      "section": "### Section Title",
+      "page": "- Page Label → /content/6_1/{path}/{file}.md",
+      "nested_page": "  - Sub-page Label → /content/6_1/{path}/{file}.md (2-space indent)"
+    }
+  },
+
+  "navigation_contract": {
+    "left_sidebar_source": "navigationData.ts (auto-generated from master index.md via sync-toc)",
+    "module_nav_hierarchy": "Module → Section → Page (3 levels)",
+    "nav_label_source": "Page labels from master TOC index.md entries",
+    "expand_collapse": "Sections expand/collapse; state tracked in component; expandAll/collapseAll supported",
+    "mobile_sidebar": "Slide-in overlay at z-40; hamburger toggle; lg:hidden",
+    "desktop_sidebar": "ResizableSidebar component; initial 288px; min 200px; max 500px; hidden below lg (1024px)",
+    "resize_handle": "6px emerald green handle on right edge of left sidebar",
+    "version_in_nav": "Version selector in header, not sidebar",
+    "active_state": "Current page highlighted; ancestor sections auto-expanded",
+    "dark_active_page": "dark:text-green-400 dark:bg-green-900/30",
+    "dark_inactive": "dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-700",
+    "dark_active_parent": "dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-700 font-medium",
+    "dark_mode_note": "All dark: variants live in NavigationMenu.tsx class strings. See dark_mode_contrast section for full context."
+  },
+
+  "toc_contract": {
+    "component": "src/components/TableOfContents.tsx",
+    "placement": "Right rail — inside the constrained layout container, NOT at viewport edge",
+    "visibility": "Hidden below xl breakpoint (1280px) — xl:block class (back-filled in globals.css)",
+    "width": "w-64 (256px)",
+    "positioning": "sticky top-20 self-start — sticks relative to main scroll container",
+    "max_height": "calc(100vh - 6rem) — doc-toc-rail class in globals.css",
+    "overflow": "overflow-y-auto — long TOC lists scroll internally",
+    "auto_extract": "autoExtract={true} — DOM heading extraction, no manual items needed",
+    "heading_levels": "h2, h3, h4 — id attributes required for scroll targeting",
+    "active_tracking": "IntersectionObserver with rootMargin: -80px 0px -80% 0px",
+    "active_style": "text-green-600 bg-green-50 font-medium",
+    "indent_levels": {
+      "h2": "pl-2",
+      "h3": "pl-4",
+      "h4": "pl-8"
+    },
+    "scroll_behavior": "window.scrollTo with 100px header offset — NOTE: <main> is actual scroll container, window.scrollTo is pre-existing limitation",
+    "metadata_above_toc": "Release Date and Last Updated shown above TOC links in the aside",
+    "toc_title": "On this page",
+    "dark_active": "dark:text-green-400 dark:bg-green-900/30",
+    "dark_inactive": "dark:text-slate-400 dark:hover:text-slate-700",
+    "dark_mode_note": "All dark: variants live in TableOfContents.tsx class strings. See dark_mode_contrast section for full context."
+  },
+
+  "runtime_content_loading": {
+    "component": "src/lib/content/contentLoader.ts",
+    "strategy_priority": [
+      "1_fetch_from_server: Primary — fetch /content/6_1/... endpoint (dist/content/ in production)",
+      "2_mdx_bundle: Fallback — lazy dynamic import.meta.glob",
+      "3_registry_placeholder: Last resort — synthetic placeholder content"
+    ],
+    "note": "Strategy 1 (static MDX imports from src/lib/imports/) was removed — those 14 import map files were deleted as dead code",
+    "fetch_path_pattern": "/content/6_1/{module}/{feature}/{filename}.md",
+    "version_context": "setVersion() must be called before getContent() — maps display version (6.1) to internal code (6_1)",
+    "cache": "In-memory Map<string, string> in contentLoader",
+    "scroll_to_top": "Double RAF on filePath change ensures DOM reset between page navigations",
+    "html_extraction_safety": "extractMDXFromHTML() uses DOMParser (not regex) to strip HTML — prevents incomplete-regex XSS (CodeQL CWE-116)"
+  },
+
+  "filename_rules": {
+    "pattern": "{descriptive_name}_6_1.md",
+    "directory_pattern": "{module_name}_6_1/{section_name}/{filename}_6_1.md",
+    "no_frontmatter": "Frontmatter is optional — not required",
+    "no_mdx_extension": "Content files use .md — never .mdx",
+    "h1_title": "Every content file should begin with an H1 heading — used as the page title"
+  },
+
+  "content_quality_rules": {
+    "heading_case": "Sentence case — e.g., 'Managing incidents' not 'Managing Incidents'",
+    "gfm_only": "Use only GFM Markdown syntax — no JSX, no MDX components, no Confluence macros",
+    "no_frontmatter_required": "Frontmatter is not required by the renderer",
+    "internal_links": "Use relative paths where possible; mdxLinkConverter.ts resolves .md links to routes",
+    "images": "Place at src/assets/images/6_1/{module}/ and reference as /assets/images/6_1/{module}/{filename}"
+  },
+
+  "website_functional_specs": {
+    "routing": {
+      "type": "Path-based SPA routing (pushState)",
+      "base_path": "'' (empty — served from domain root on GitHub Pages)",
+      "topic_page_url": "/{version}/{module}/{section}/{page}",
+      "example": "/6.1/admin/credentials-management-module/credentials-management-module-administration",
+      "version_in_url": true,
+      "module_in_url": true
+    },
+    "breadcrumbs": {
+      "component": "MDXContent.tsx — Breadcrumb from src/components/ui/breadcrumb",
+      "hierarchy": "Home icon → Module → Section → Page",
+      "clickable": "Home, version, and module crumbs are clickable and trigger navigation callbacks",
+      "last_crumb": "Non-clickable current page title (BreadcrumbPage)",
+      "visibility": "Only shown when breadcrumbs array has >0 items",
+      "builder": "buildBreadcrumbPath() in src/utils/hierarchicalTocLoader.ts"
+    },
+    "topic_page_layout": {
+      "shell": "DocumentationLayout.tsx — flex column, min-h-screen",
+      "scrollable_region": "<main className='flex-1 overflow-auto'>",
+      "content_component": "DocumentationContent.tsx — renders article + TOC rail",
+      "reading_layout": "Two-column: article flex-1 + aside w-64; both inside max-w-7xl mx-auto container",
+      "article_width_at_1440px": "~785px",
+      "article_width_at_1280px": "~625px",
+      "gap_between_columns": "gap-8 (32px)",
+      "container_max_width": "max-w-7xl = 1280px (Tailwind v4 named token)",
+      "container_padding": "px-4 sm:px-6 lg:px-8",
+      "top_padding": "pt-8 sm:pt-12 lg:pt-16",
+      "bottom_padding": "pb-24"
+    },
+    "leftnav_rightnav_toc": {
+      "left_nav": "ResizableSidebar with NavigationMenu — module/section/page tree; hidden below lg; initial 288px",
+      "right_nav_toc": "TableOfContents in sticky aside — auto-extracts h2/h3/h4 headings; hidden below xl; w-64; sticky top-20",
+      "both_inside_shell": "Right TOC is inside the max-w-7xl centered container — NOT at viewport edge",
+      "layout_bug_history": "Previously TOC was a ResizableSidebar sibling outside constrained wrapper. Fixed 2026-03-31.",
+      "fix_commit": "13e00a9 — constrained two-column reading layout"
+    },
+    "loading_states": {
+      "page_loading": "Spinner: animate-spin emerald border-4 h-8 w-8 with 'Loading documentation...' text",
+      "path_loading": "Simple 'Loading...' text while TOC path resolves",
+      "image_loading": "OptimizedImage component shows animate-pulse skeleton; priority=true bypasses IntersectionObserver"
+    },
+    "error_states": {
+      "content_not_found": "ContentNotAvailable component — shows file path, error details, version/module/section/page context",
+      "module_landing": "When no section/page selected: doc icon + 'Select a topic from the sidebar' prompt",
+      "image_error": "ImageWithFallback shows 'Image not available' placeholder with broken image icon"
+    },
+    "empty_states": {
+      "no_toc_items": "TableOfContents returns null — aside disappears; article takes full width",
+      "no_breadcrumbs": "Breadcrumb section hidden when buildBreadcrumbPath returns empty array"
+    }
+  },
+
+  "layout_contracts": {
+    "outer_shell": "DocumentationLayout — flex flex-col min-h-screen",
+    "header": "Sticky top-0 z-50 — h-14 mobile / h-16 tablet+; max-w-[1920px] mx-auto inner",
+    "sidebar_main_row": "flex flex-1 overflow-hidden",
+    "main_scroll_container": "<main className='flex-1 overflow-auto'>",
+    "content_layout_container": "flex gap-8 max-w-7xl mx-auto w-full — holds article + TOC together",
+    "article_column": "flex-1 min-w-0 — fills available space after TOC",
+    "toc_aside": "hidden xl:block w-64 flex-shrink-0 self-start sticky top-20 doc-toc-rail",
+    "tailwind_v4_precompile_note": "src/index.css is a pre-compiled Tailwind v4 artifact. New utility classes not in original scan are MISSING. Back-fill in globals.css. Known back-filled: xl:block, .doc-toc-rail",
+    "tailwind_v4_breakpoints": {
+      "sm": "640px (40rem)",
+      "md": "768px (48rem)",
+      "lg": "1024px (64rem)",
+      "xl": "1280px (80rem)"
+    },
+    "footer": "Full-width below sidebar/main row"
+  },
+
+  "responsive_breakpoints": {
+    "mobile_default": "Single column; left sidebar hidden; TOC hidden; article full width",
+    "sm_640px": "Padding adjustments (px-6, pt-12)",
+    "lg_1024px": "Left ResizableSidebar appears; layout padding increases (px-8, pt-16)",
+    "xl_1280px": "Right TOC aside appears (xl:block); two-column reading layout active",
+    "toc_hidden_below": "xl (1280px)",
+    "left_sidebar_hidden_below": "lg (1024px)",
+    "mobile_sidebar": "Slide-in overlay; z-40; full height; w-72"
+  },
+
+  "search_capabilities": {
+    "component": "AISearchDialog.tsx / AISearchDialogSimplified.tsx",
+    "type": "AI-powered search using Anthropic API",
+    "search_orchestrator": "src/lib/search/search-orchestrator.ts",
+    "search_config": "src/lib/search/config.ts",
+    "static_search_index": "public/search-index.json — 385 entries; lazy-loaded on first search; covers all TOC pages",
+    "sitemap_generator": "scripts/build-sitemap.ts",
+    "trigger": "Search button in DocumentationHeader or keyboard shortcut",
+    "chat_integration": "Chat panel (ChatPanel.tsx) provides conversational search and Q&A",
+    "knowledge_base": "VirimaKnowledgeBase.tsx — KB article browser",
+    "enterprise_feature": true
+  },
+
+  "versioning_and_dropdown_behavior": {
+    "version_selector_location": "DocumentationHeader — dropdown",
+    "active_version": "6.1",
+    "inactive_versions": ["6.1.1", "5.13", "NextGen"],
+    "version_switching": "onVersionChange callback navigates to selected version's content",
+    "version_in_route": "Version embedded in URL path: /{version}/...",
+    "version_persistence": "Version in URL persists across navigation within same session",
+    "internal_version_code": {
+      "6.1": "6_1",
+      "6.1.1": "6_1_1",
+      "5.13": "5_13",
+      "NextGen": "NG"
+    },
+    "version_map_location": "DocumentationContent.tsx and MDXContent.tsx"
+  },
+
+  "homepage_cards": {
+    "component": "HomePage.tsx",
+    "config": "src/components/homePageConfig.ts",
+    "card_type": "Module tiles — one per active module",
+    "card_click_behavior": "Navigates to module landing page; triggers onModuleChange callback",
+    "card_contents": "Module name, icon, short description, doc count",
+    "cover_page": "CoverPage.tsx — enterprise hero with logo and version info",
+    "homepage_layout": "Cover page above; module cards grid below",
+    "enterprise_standard": "Clean, theme-aware, no screenshot-based branding"
+  },
+
+  "theme_and_branding": {
+    "font": "Inter — system-ui fallback",
+    "font_variable": "--font-sans in globals.css :root",
+    "color_palette_source": "globals.css :root and .dark CSS custom properties",
+    "brand_primary_color": "Emerald green — #2E7D32 (dark tables), #10b981 (resize handle, active links)",
+    "dark_mode_mechanism": ".dark class on html element — @custom-variant dark (&:is(.dark *))",
+    "dark_mode_toggle": "ThemeToggle.tsx in header",
+    "logo": "virima_logo.png / virima-logo-extended-tag-footer.svg — NOT screenshots",
+    "favicon_source": "src/assets/ — Virima branded assets",
+    "screenshot_branding_prohibited": true,
+    "table_header_bg": "#2E7D32 light / #1B5E20 dark",
+    "table_header_text": "#FFFFFF",
+    "table_th_alignment": "center — both Tailwind text-center and inline style textAlign:center; globals.css text-align:center !important",
+    "table_td_alignment": "start (left) — browser default",
+    "sidebar_bg_light": "#FFFFFF",
+    "sidebar_bg_dark": "#13171f",
+    "border_dark": "#242d3f (CSS variable --border in .dark)",
+    "brand_green_token": "#3db553 — CSS var(--brand) in :root and .dark (same value in both)",
+    "brand_dark_token": "#2e9141 (light mode deeper green) / #4ece66 (dark mode lighter green)",
+    "emerald_hover_backfill": "dark:hover:text-emerald-400 not in pre-compiled index.css — back-filled in globals.css",
+    "dark_mode_complete": "All nav, TOC, and prose dark variants applied as of 64ba502",
+    "reference_quality_bar": "prds_ng repo — use as enterprise UI quality standard"
+  },
+
+  "content_rendering_rules": {
+    "renderer": "MDXRenderer.tsx — ReactMarkdown with remark-gfm, rehype-raw, and rehype-sanitize (in that order — sanitize must follow raw to clean parsed HTML)",
+    "content_rendering_sanitizer": "rehype-sanitize with custom SANITIZE_SCHEMA extending defaultSchema — allows className/style on *, code, span, div; blocks on* event handlers",
+    "content_class": "prose prose-slate max-w-none",
+    "heading_hierarchy": "H1 = page title; H2 = major sections; H3 = subsections; max depth H4",
+    "heading_ids": "extractHeadings.ts assigns IDs; ensureHeadingIds() called on render",
+    "internal_links": "Relative paths — mdxLinkConverter.ts handles link resolution",
+    "code_blocks": "react-syntax-highlighter for colored code; code.bg-slate-100 for inline",
+    "inline_code_color": "var(--accent-foreground) — black in light, slate in dark (globals.css rule)",
+    "image_renderer": "OptimizedImage component via img: renderer in MDXRenderer",
+    "image_priority": "priority={true} — eager loading; IntersectionObserver bypass (zero-size container fix)",
+    "image_classes": "rounded-lg shadow-md my-6 max-w-full h-auto border-[0.5px] border-slate-400",
+    "no_confluence_macros": true,
+    "no_frontmatter_required": true
+  },
+
+  "table_rendering_rules": {
+    "css_classes": [".virima-table", ".virima-table-th", ".virima-table-header"],
+    "css_location": "globals.css — lines ~550-650",
+    "specificity_approach": "18-selector block with !important overrides for enterprise reliability",
+    "th_alignment": "center — text-align: center !important in globals.css AND text-center class AND textAlign:'center' inline style in MDXRenderer th renderer",
+    "td_alignment": "start (left) — no explicit rule; browser default",
+    "header_bg": "#2E7D32 (light) / #1B5E20 (dark)",
+    "header_text_color": "#FFFFFF",
+    "stripe_rows": true,
+    "responsive": "Horizontal scroll on narrow viewports via overflow-x-auto wrapper"
+  },
+
+  "image_asset_rules": {
+    "asset_location": "src/assets/images/6_1/{module_subdirectory}/",
+    "url_pattern_in_docs": "/assets/images/6_1/{module}/{filename}.png",
+    "runtime_path_resolution": "resolveImagePath() in src/utils/imagePathResolver.ts — prepends getBasePath()",
+    "build_copy": "copyAssetsPlugin in vite.config.ts copies src/assets/images/ → dist/assets/images/",
+    "dev_serve": "serveAssetsPlugin in vite.config.ts serves /assets/images/* from src/assets/images/*",
+    "optimized_image_component": "src/components/ui/OptimizedImage.tsx",
+    "optimized_image_wrapper": "div.relative.inline-block — wrapper has 0x0 size before image loads",
+    "lazy_load_bug_fix": "priority={true} bypasses IntersectionObserver — zero-size container prevents intersection detection",
+    "image_fallback": "ImageWithFallback.tsx — shows 'Image not available' on error",
+    "alt_text": "Required on all images — description of what the image shows",
+    "no_screenshots_as_branding": true
+  },
+
+  "tooling_and_build": {
+    "build_command": "pnpm build — runs prebuild (sync-toc → build-doc-graph → build-search-index → build-sitemap) then vite build",
+    "dev_command": "pnpm dev — Vite dev server port 3000",
+    "preview_command": "pnpm preview — serve production build port 4173",
+    "typecheck": "pnpm typecheck — tsc -p src/tsconfig.json --noEmit",
+    "sync_toc": "pnpm sync-toc — regenerate navigationData.ts + indexContentMap.ts from master index.md",
+    "build_doc_graph": "pnpm build-doc-graph — build public/doc-graph.json from master TOC + .md files",
+    "build_search_index": "pnpm build-search-index — build public/search-index.json (385 entries)",
+    "watch_toc": "pnpm watch-toc — file watcher for auto-sync during development",
+    "validate": "pnpm validate — typecheck + check:security + check:setup + check:paths",
+    "eval": "pnpm eval — all documentation quality evals",
+    "test": "pnpm test — Vitest unit tests in scripts/__tests__/",
+    "launch_configs": ".claude/launch.json — Vite Dev, Vite Preview (4173), Docker/nginx (8080)",
+    "vite_custom_plugins": [
+      "copyContentPlugin: src/pages/content/ → dist/content/",
+      "copyAssetsPlugin: src/assets/images/ → dist/assets/images/",
+      "serveAssetsPlugin: /assets/images/* and /content/* served in dev mode"
+    ],
+    "tailwind_v4_css_file": "src/index.css — pre-compiled Tailwind v4 artifact; new classes require globals.css back-fill",
+    "docker": "docker-compose.yml — nginx production container; port 8080:8080 (local preview only)",
+    "nginx_port": "8080 — nginxinc/nginx-unprivileged:alpine runs on port 8080 (local preview only; production is GitHub Pages)",
+    "container_base_image": "nginxinc/nginx-unprivileged:alpine (runtime) — non-root, no chmod 777 required",
+    "check_paths": "pnpm check:paths — path contract validator; exits 0=all pass, non-zero=violation found",
+    "memory_check": "pnpm memory:check — drift detector; exits 0=GREEN, 1=AMBER, 2=RED",
+    "memory_update": "pnpm memory:update — bump memory_version patch + generated_at after editing memory"
+  },
+
+  "validation_gates": {
+    "typecheck_command": "pnpm typecheck",
+    "typecheck_on_failure": "Fix type errors before committing",
+    "security_scan_command": "pnpm check:security",
+    "security_on_failure": "Remove hardcoded secrets",
+    "setup_check_command": "pnpm check:setup",
+    "setup_on_failure": "Fix missing structure",
+    "docs_eval_command": "pnpm eval",
+    "docs_eval_on_failure": "Fix flagged documentation coverage or structure",
+    "build_command": "pnpm build",
+    "build_on_failure": "Fix TypeScript + build errors",
+    "required_sequence": "typecheck → validate (includes check:paths) → eval → build — all must pass before merge",
+    "doc_graph_check": "Verify public/doc-graph.json exists with pages≥350 after build",
+    "search_index_check": "Verify public/search-index.json exists with entries≥350 after build"
+  },
+
+  "workflow_contracts": {
+    "branch_naming_pattern": "autofeature-{description}-{version}-{DDMMYYYY}",
+    "branch_naming_examples": [
+      "autofeature-admin-docs-6_1-31032026",
+      "autofeature-content-width-toc-layout-6_1-31032026"
+    ],
+    "no_slashes_in_branch_names": true,
+    "merge_strategy": "Fast-forward when branch is ahead of main tip; cherry-pick for diverged branches",
+    "no_direct_main_commit_without_validation": true,
+    "commit_message_style": "feat/fix/chore/docs/refactor(scope): description",
+    "prohibited_without_review": [
+      "Changing vite base path (currently './' — required for GitHub Pages root-served deployment)",
+      "Editing master index.md structure without running pnpm sync-toc"
+    ]
+  },
+
+  "ci_cd_contracts": {
+    "ci_workflow": ".github/workflows/ci.yml",
+    "deploy_workflow": ".github/workflows/deploy-pages.yml",
+    "ci_trigger": "Push to feature/fix/refactor/autofeature branches + PRs to main",
+    "deploy_trigger": "Push to main + workflow_dispatch",
+    "deploy_target": "GitHub Pages — https://virima-products.github.io/v6_feature_documentation/",
+    "deploy_local_docker": "Optional local-only Docker preview via docker compose (nginx.conf + Dockerfile, NOT production CI)",
+    "ci_jobs": ["validate (typecheck, security, setup, paths)", "build (pnpm build, artifact uploaded 7 days)"],
+    "note": "The generate-v6feature-docs.yml generation workflow was intentionally removed as part of the 2026-04-07 architecture migration to manual content curation"
+  },
+
+  "secret_dependencies": {
+    "ANTHROPIC_API_KEY": "Required for AI-powered search (NOT for doc generation — generation pipeline removed)",
+    "GITHUB_TOKEN": "Required for PR creation and branch operations",
+    "note": "Never hardcode secrets — check:security scan enforces this"
+  },
+
+  "anti_patterns_to_avoid": {
+    "wrong_content_path": "src/content/ — must be src/pages/content/",
+    "wrong_build_dir": "build/ — must be dist/",
+    "wrong_package_manager": "npm install / yarn add — must be pnpm",
+    "wrong_file_extension": ".mdx for content files — must be .md",
+    "editing_auto_generated": "Hand-editing navigationData.ts or indexContentMap.ts — run pnpm sync-toc instead",
+    "editing_build_artifacts": "Hand-editing public/doc-graph.json or public/search-index.json — run pnpm build instead",
+    "toc_out_of_sync": "Adding .md files without updating master index.md — always update index.md and run sync-toc",
+    "deleted_static_imports": "Importing from src/lib/imports/ — that directory was deleted; it no longer exists",
+    "deleted_generation_scripts": "Referencing generate-feature-doc.ts, validate-generation.ts, path-mapping.ts — those were deleted"
+  },
+
+  "branch_naming": {
+    "pattern": "autofeature-{short-description}-{version_underscore}-{DDMMYYYY}",
+    "date_format": "DDMMYYYY — day first, e.g., 31032026",
+    "version_format": "6_1 (underscore not dot)",
+    "no_slashes": "Forward slashes prohibited in branch names",
+    "no_feature_slash": "Do NOT use feature/foo or fix/bar patterns"
+  },
+
+  "enterprise_capabilities": {
+    "graph_based_navigation": {
+      "what": "Build-time doc graph (doc-graph.json) with nodes, edges, and progressive disclosure API",
+      "why": "Token-efficient navigation and search — load graph once, never load page bodies for nav",
+      "benefit": "L0 metadata in ~100 tokens; L1 section pages in ~200-500 tokens; page bodies only on demand"
+    },
+    "static_search_index": {
+      "what": "Build-time search index (search-index.json) covering all 385 TOC pages",
+      "why": "Full-text search across all pages without loading page bodies",
+      "benefit": "20x improvement over previous 17-entry index; loaded lazily on first search"
+    },
+    "ai_search": {
+      "what": "AI-powered search dialog using Anthropic API",
+      "why": "Enables semantic search beyond keyword matching",
+      "problem_prevented": "Users can't find relevant docs via keyword search",
+      "benefit": "Conversational search + knowledge base integration"
+    },
+    "constrained_reading_layout": {
+      "what": "Two-column reading layout: article (flex-1) + TOC rail (w-64) inside max-w-7xl centered container",
+      "why": "Enterprise documentation reading standard; matches prds_ng quality bar",
+      "benefit": "Comfortable ~785px reading width; TOC visually attached to content"
+    },
+    "tailwind_v4_precompile_strategy": {
+      "what": "src/index.css is pre-compiled; missing utilities back-filled in globals.css",
+      "why": "No @tailwindcss/vite plugin installed; CSS is committed artifact",
+      "benefit": "Controlled, explicit utility management without build chain changes",
+      "known_backfills": ["xl:block in @media(width>=80rem)", ".doc-toc-rail with max-height + overflow-y"]
+    }
+  },
+
+  "dark_mode_contrast": {
+    "approach": "Centralized CSS override in globals.css — NOT scattered dark: variants in every component",
+    "why_centralized": "MDXRenderer components use hardcoded Tailwind utilities (text-slate-900, text-slate-700) with no dark: variants. CSS specificity (0,2,1) for .dark .prose rules beats Tailwind utility (0,1,0) without !important.",
+    "prose_override_location": "src/styles/globals.css — .dark .prose block at end of file",
+    "prose_rules": {
+      "headings": ".dark .prose h1-h6 → color: #F1F5F9 (near-white)",
+      "body_text": ".dark .prose p, li, ul, ol → color: #CBD5E1 (slate-300)",
+      "strong": ".dark .prose strong → color: #F1F5F9",
+      "em": ".dark .prose em → color: #CBD5E1",
+      "blockquote": ".dark .prose blockquote → bg: rgba(61,181,83,0.08), border: #3db553, text: #CBD5E1",
+      "hr": ".dark .prose hr → border-color: #242d3f",
+      "links": ".dark .prose a → color: #34d058; .dark .prose a:hover → color: #4ece66 (lighter, correct direction)",
+      "inline_code": "globals.css .dark .prose code:not(pre code) — color: var(--accent-foreground)"
+    },
+    "nav_toc_approach": "Direct dark: Tailwind variants on NavigationMenu.tsx and TableOfContents.tsx class strings",
+    "nav_dark_active": "dark:text-green-400 dark:bg-green-900/30 (selected page/TOC item)",
+    "nav_dark_inactive": "dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-700",
+    "nav_dark_active_parent": "dark:text-slate-100 dark:hover:text-slate-100 dark:hover:bg-slate-700 font-medium",
+    "backfilled_variant": "dark:hover:text-emerald-400 not in pre-compiled src/index.css — back-filled in globals.css",
+    "commit": "64ba502 — fix(theme): enterprise-grade dark mode contrast — centralized prose, nav, and TOC fixes",
+    "tailwind_v4_precompile_note": "Check src/index.css for available dark: variants before using them in JSX. Not all variants are compiled. Back-fill in globals.css if needed."
+  },
+
+  "sub_landing_page_behavior": {
+    "module_landing": "When user navigates to a module with no page selected: shows doc icon + 'Select a topic from the sidebar' text prompt",
+    "sub_landing_route": "URL: /{version}/{module} — no section or page in URL",
+    "section_as_entry_point": "Clicking a section header in nav auto-selects the first page in that section",
+    "breadcrumb_on_landing": "Shows Home → Module only (section and page crumbs absent until page selected)",
+    "toc_on_landing": "TableOfContents returns null when no content loaded — aside disappears, article full-width"
+  },
+
+  "security_contract": {
+    "static_site": "No server-side code; no user accounts; no backend — appropriate security scope for public docs",
+    "tls": "GitHub Pages CDN provides TLS automatically",
+    "content_rendering": "rehype-sanitize in MDXRenderer.tsx blocks XSS from HTML in markdown content",
+    "http_headers": "nginx.conf (local Docker only) provides CSP, X-Frame-Options, etc.",
+    "secret_scanning": "pnpm check:security scans for sk-, sk-ant-, AKIA, ghp_, github_pat_ patterns",
+    "api_key_exposure_warning": "VITE_* environment variables compile into JS bundle — scope AI API keys to specific domains; set strict usage limits",
+    "codeowners": ".github/CODEOWNERS requires review for Dockerfile, nginx.conf, workflows, memory files",
+    "never_add": "Auth/login systems, disable rehype-sanitize, hardcode API keys in source"
+  },
+
+  "repo_specific_vs_reusable_rules": {
+    "repo_specific": [
+      "Virima brand colors and typography",
+      "Content path: src/pages/content/6_1/ with _6_1 suffix directories",
+      "Master TOC location: src/pages/content/6_1/index.md",
+      "Module names (admin, cmdb, itsm, discovery-scan, itam, etc.)",
+      "Virima favicon/logo assets",
+      "GITHUB_TOKEN and ANTHROPIC_API_KEY secret names"
+    ],
+    "reusable_patterns": [
+      "Master index.md as single source of truth for navigation TOC",
+      "sync-toc-from-index.ts pattern: master index.md → navigationData.ts + indexContentMap.ts",
+      "Build-time doc graph: build-doc-graph.ts → doc-graph.json (nodes, edges, metadata)",
+      "Progressive disclosure API: L0 metadata → L1 section pages → L2 navigation only",
+      "Static search index: build-search-index.ts → search-index.json (all pages, lazy-loaded)",
+      "Content loader: fetch .md from dist/content/ at runtime",
+      "Two-column reading layout: max-w-7xl mx-auto container holding article + TOC rail",
+      "Tailwind v4 pre-compile back-fill pattern in globals.css",
+      "ResizableSidebar pattern for left nav",
+      "Branch naming pattern: autofeature-{desc}-{version}-{DDMMYYYY}"
+    ]
+  }
+}

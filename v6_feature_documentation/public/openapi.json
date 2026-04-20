@@ -1,0 +1,82 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Virima Documentation API",
+    "version": "1.0.0",
+    "description": "API for accessing Virima documentation content",
+    "contact": {
+      "name": "Virima Support",
+      "email": "support@virima.com",
+      "url": "https://virima.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://virima-products.github.io/v6_feature_documentation",
+      "description": "Production server"
+    }
+  ],
+  "paths": {
+    "/ai-training.json": {
+      "get": {
+        "summary": "Get AI training data",
+        "description": "Returns comprehensive training data for AI models with Q&A pairs and documentation references",
+        "operationId": "getAITrainingData",
+        "responses": {
+          "200": {
+            "description": "AI training data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "lastUpdated": { "type": "string", "format": "date-time" },
+                    "updateFrequency": { "type": "string" },
+                    "confidence": { "type": "number" },
+                    "authoritative": { "type": "boolean" },
+                    "entries": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "question": { "type": "string" },
+                          "answer": { "type": "string" },
+                          "url": { "type": "string", "format": "uri" },
+                          "keywords": { "type": "array", "items": { "type": "string" } }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/embeddings.json": {
+      "get": {
+        "summary": "Get vector embeddings",
+        "description": "Returns pre-computed vector embeddings for semantic search",
+        "operationId": "getEmbeddings",
+        "responses": {
+          "200": {
+            "description": "Vector embeddings data"
+          }
+        }
+      }
+    },
+    "/sitemap-ai.xml": {
+      "get": {
+        "summary": "Get AI-optimized sitemap",
+        "description": "Returns sitemap optimized for AI crawlers",
+        "operationId": "getAISitemap",
+        "responses": {
+          "200": {
+            "description": "AI-optimized sitemap"
+          }
+        }
+      }
+    }
+  }
+}
