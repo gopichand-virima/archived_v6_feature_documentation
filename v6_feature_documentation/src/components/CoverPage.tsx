@@ -11,126 +11,62 @@ interface CoverPageProps {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Pointy-top hexagon helper
+   Hero graphic: Virima right-side brand mark
+   — radial-gradient arc "C" swept in from right edge
+   — 13 pre-laid hexagons across left + lower field
+   — isometric cube centred in the arc's inner void
+   viewBox: 636 × 533   preserveAspectRatio: xMaxYMid meet
 ───────────────────────────────────────────────────────────── */
-function hex(cx: number, cy: number, r: number): string {
-  return Array.from({ length: 6 }, (_, i) => {
-    const a = (Math.PI / 3) * i - Math.PI / 6;
-    return `${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}`;
-  }).join(" ");
-}
-
-/* ─────────────────────────────────────────────────────────────
-   Hero graphic: brand-faithful Virima right-side mark
-   — thick green arc ring anchored to right edge
-   — 13 point-top hexagons per placement appendix
-   — clean isometric cube in the inner void
-   viewBox: 466 × 471   preserveAspectRatio: xMaxYMid meet
-───────────────────────────────────────────────────────────── */
-function HeroGraphic({ bgColor }: { bgColor: string }) {
-  /*
-   * Reference: Virima brand mark — "100% correct" SVG provided by user.
-   *
-   * Key characteristics from reference:
-   *  • TWO very large hexes at the far left that PARTIALLY CLIP at viewBox x=0
-   *    (their centres sit at small positive x; their left vertices are negative,
-   *    so the SVG clips them — producing the "large partial hex" visual at left edge)
-   *  • Hexes graduate from large (left) → medium → small/tiny (toward arc)
-   *  • A small hex sits near the arc's top opening (upper-right of hex field)
-   *  • Three distinct bands: upper fan, mid band, lower cluster + bottom row
-   *
-   * Arc geometry: cx=466 (right edge), cy=235 (vertical mid), R_outer=220, R_inner=165
-   * Pointy-top hex: leftmost x = cx − 0.866r
-   * All verified: dist(cx,cy → 466,235) − r > 220
-   *
-   * #   (cx,   cy,   r)   leftmost-x   dist−r
-   * ────────────────────────────────────────────
-   *  1  ( 22,  228,  62)    −32 CLIP    383
-   *  2  ( 20,  138,  50)    −23 CLIP    406
-   *  3  ( 88,  162,  32)     60          353
-   *  4  (148,  128,  26)    125          309
-   *  5  (200,   90,  20)    183          284
-   *  6  (228,   58,  16)    214          283
-   *  7  (205,   32,  14)    193          320
-   *  8  ( 88,  250,  32)     61          344
-   *  9  (148,  268,  27)    125          291
-   * 10  (200,  250,  20)    183          251
-   * 11  ( 95,  355,  32)     68          351
-   * 12  (155,  385,  38)    122          301
-   * 13  (205,  362,  24)    184          264
-   * 14  (158,  442,  24)    137          346
-   * 15  (210,  456,  17)    195          320
-   * 16  (242,  432,  14)    230          284
-   */
-  const hexes: [number, number, number][] = [
-    // ── PARTIAL large anchors — left edge clip
-    [ 22,  228,  62],  //  1. Huge — mid-height, partially clipped (leftmost x = -32)
-    [ 20,  138,  50],  //  2. Large — upper-left, partially clipped (leftmost x = -23)
-    // ── Upper fan — medium → tiny, fanning right toward arc
-    [ 88,  162,  32],  //  3. medium
-    [148,  128,  26],  //  4. medium-small
-    [200,   90,  20],  //  5. small
-    [228,   58,  16],  //  6. small — near arc's top opening
-    [205,   32,  14],  //  7. tiny — top of field
-    // ── Mid band
-    [ 88,  250,  32],  //  8. medium
-    [148,  268,  27],  //  9. medium
-    [180,  248,  18],  // 10. small  (moved left: dist=286, 286−18=268>250 ✓)
-    // ── Lower cluster
-    [ 95,  355,  32],  // 11. medium
-    [155,  385,  38],  // 12. medium-large (lower centrepiece)
-    [205,  362,  24],  // 13. medium
-    // ── Bottom row
-    [158,  442,  24],  // 14. medium
-    [210,  456,  17],  // 15. small
-    [242,  432,  14],  // 16. small
-  ];
-
+function HeroGraphic() {
   return (
     <svg
-      viewBox="0 0 466 471"
+      viewBox="0 0 636 533"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       preserveAspectRatio="xMaxYMid meet"
       className="w-full h-full"
       aria-hidden="true"
     >
-      {/*
-       * Z-ORDER (back → front):
-       *   1. Arc ring  — thick green "C" band, cx=466 (right edge), cy=235
-       *                  R_outer=250 intentionally EXCEEDS viewBox top (y=-15) and
-       *                  bottom (y=485) so the SVG clips it → natural "C" opening LEFT
-       *   2. Hexagons  — drawn OVER the arc
-       *   3. Void      — inner cream circle punches through arc + hides hex overlap
-       *   4. Cube      — isometric cube inside the void
-       *
-       * Arc geometry (cx=466, cy=235):
-       *   R_outer=250  left edge x=216 at mid-height  top y=-15 (CLIPPED) bottom y=485 (CLIPPED)
-       *   R_inner=190  left edge x=276 at mid-height
-       *   Band = 60 units
-       *
-       * All hex verified: dist(cx,cy → 466,235) − r > 250
-       * All cube vertices verified inside R_inner=190
-       */}
+      {/* Arc — closed "C" path with radial gradient; extends beyond viewBox
+           on the right so the SVG naturally clips it into the crescent. */}
+      <path
+        d="M812.952 257.755C812.952 257.755 734.789 381.317 613.038 458.306C491.287 535.296 397.468 532.733 397.468 532.733V435.466C397.468 435.466 561.229 410.731 561.229 257.755C561.229 104.78 405.352 103.331 405.352 103.331L403.55 1.27334C403.55 1.27334 491.174 -14.3251 625.539 63.6669C705.487 109.303 770.529 176.661 812.952 257.755Z"
+        fill="url(#hero-arc-gradient)"
+      />
 
-      {/* ── Group A: Main green arc ring — C-shape, clips at viewBox edges ── */}
-      <circle cx="466" cy="235" r="250" fill="#41B84F" />
+      {/* Hexagon constellation (13 hexes, all #55BA63) */}
+      <path d="M380.794 513.458V488.389L358.832 475.799L336.982 488.389V513.458L358.832 525.937L380.794 513.458Z" fill="#55BA63" />
+      <path d="M286.19 510.563V491.177L269.183 481.483L252.176 491.177V510.563L269.183 520.257L286.19 510.563Z" fill="#55BA63" />
+      <path d="M358.83 448.504V397.252L314.004 371.626L269.178 397.252V448.504L314.004 474.129L358.83 448.504Z" fill="#55BA63" />
+      <path d="M247.448 436.137V409.62L224.247 396.361L201.046 409.62V436.137L224.247 449.396L247.448 436.137Z" fill="#55BA63" />
+      <path d="M209.603 362.154V327.726L179.418 310.457L149.234 327.726V362.154L179.418 379.424L209.603 362.154Z" fill="#55BA63" />
+      <path d="M113.081 358.255V331.626L89.6541 318.256L66.3401 331.626V358.255L89.6541 371.625L113.081 358.255Z" fill="#55BA63" />
+      <path d="M89.6519 292.631V241.379L44.8259 215.754L0 241.379V292.631L44.8259 318.257L89.6519 292.631Z" fill="#55BA63" />
+      <path d="M247.448 280.263V253.746L224.247 240.487L201.046 253.746V280.263L224.247 293.522L247.448 280.263Z" fill="#55BA63" />
+      <path d="M115.67 200.378V173.972L92.4688 160.713L69.2674 173.972V200.378L92.4688 213.748L115.67 200.378Z" fill="#55BA63" />
+      <path d="M214.332 208.954V169.067L179.417 149.123L144.503 169.067V208.954L179.417 228.898L214.332 208.954Z" fill="#55BA63" />
+      <path d="M247.673 124.39V97.6496L224.246 84.2795L200.932 97.6496V124.39L224.246 137.76L247.673 124.39Z" fill="#55BA63" />
+      <path d="M335.971 121.939V96.8697L314.009 84.2795L292.046 96.8697V121.939L314.009 134.529L335.971 121.939Z" fill="#55BA63" />
+      <path d="M380.798 49.184V16.9845L352.641 0.828979L324.484 16.9845V49.184L352.641 65.2281L380.798 49.184Z" fill="#55BA63" />
 
-      {/* ── Group D: Hexagon constellation ───────────────────── */}
-      {hexes.map(([cx, cy, r], i) => (
-        <polygon key={i} points={hex(cx, cy, r)} fill="#55BA63" />
-      ))}
+      {/* Isometric cube — right, top, left faces */}
+      <path d="M409.182 349.23L483.404 305.443L482.391 219.986L409.52 262.882L409.182 349.23Z" fill="#7DC242" />
+      <path d="M409.516 262.882L482.386 219.987L406.813 178.205L332.591 221.992L409.516 262.882Z" fill="#CBDB2A" />
+      <path d="M332.591 221.993L333.605 307.45L409.178 349.231L409.516 262.883L332.591 221.993Z" fill="#A4D178" />
 
-      {/* ── Group B: Inner void ───────────────────────────────── */}
-      <circle cx="466" cy="235" r="190" fill={bgColor} />
-
-      {/* ── Group C: Isometric cube — centred inside the void ─── */}
-      {/* top face  — lime / yellow-green                          */}
-      <polygon points="310,226 355,200 400,226 355,252" fill="#CBDB2A" />
-      {/* left face — soft green                                   */}
-      <polygon points="310,226 355,252 355,312 310,286" fill="#A4D178" />
-      {/* right face — medium green                                */}
-      <polygon points="355,252 400,226 400,286 355,312" fill="#7DC242" />
+      <defs>
+        <radialGradient
+          id="hero-arc-gradient"
+          cx="0"
+          cy="0"
+          r="1"
+          gradientUnits="userSpaceOnUse"
+          gradientTransform="translate(-14421.7 -20556.9) rotate(180) scale(28483.6 28436.2)"
+        >
+          <stop offset="0.05" stopColor="#B9D877" />
+          <stop offset="1" stopColor="#32B44A" />
+        </radialGradient>
+      </defs>
     </svg>
   );
 }
@@ -178,7 +114,7 @@ export function CoverPage({ onModuleSelect, onSearchDialogOpen }: CoverPageProps
           ease: animationConfig.title.ease,
         }}
       >
-        <HeroGraphic bgColor={bg} />
+        <HeroGraphic />
       </motion.div>
 
       {/* ── Main content column ────────────────────────────── */}
@@ -301,7 +237,7 @@ export function CoverPage({ onModuleSelect, onSearchDialogOpen }: CoverPageProps
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: animationConfig.button.delay + 0.2, duration: 0.7 }}
         >
-          <HeroGraphic bgColor={bg} />
+          <HeroGraphic />
         </motion.div>
       </div>
 
